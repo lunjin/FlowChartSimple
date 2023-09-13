@@ -1,0 +1,5 @@
+x :=12;
+y :=13;
+read z;
+
+if (z>0) then { print -x*y; } else print x*y; 

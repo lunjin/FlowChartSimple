@@ -1,0 +1,7 @@
+
+read z;
+
+y := sin(z); 
+
+print y; 
+

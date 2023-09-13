@@ -1,0 +1,18 @@
+A string table named nametable has been added that maps each
+name/string constant to an unsigned integer that is used to represent
+the name/string internally. The files string_table.h and
+string_table.cpp provide an initial implementation of string table.
+
+The program state is now named state and is now a map from internal
+variable name (unsigned integer) to a value (integer, float, bool or
+a function pointer).
+ 
+AST nodes for binary arithmetic operations have been merged into one
+class operator_node instead of multiple classes each for one operator. 
+
+operators:
+	% is added
+	equality comparasion is changed to  =
+	assignment operator is changed to   := 
+
+

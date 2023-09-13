@@ -1,0 +1,219 @@
+#include "FCD.h"
+
+using namespace std;
+
+Register FCD::registrar = Register(); 
+
+
+FCD::FCD()
+{ nodeMatrix = myMatrix(1,1); 
+  axis = 0; 
+  links = list<Link>(); 
+  exits = list<pair<int,int>>();
+}
+
+FCD::FCD(string Label)
+{ 
+  unsigned nn = FCD::registrar.put(Label);
+
+  axis = 0; 
+  nodeMatrix=myMatrix(1,1);
+  nodeMatrix(0,0) = nn;
+
+  links = list<Link>();  
+  exits = list<pair<int,int>>();
+  exits.push_back(pair<int,int>(nn,0));
+  
+}
+
+string FCD::TikZCode() const
+{   
+  int n_rows =   nodeMatrix.getHeight();
+  int n_cols =   nodeMatrix.getWidth();
+  int nn; 
+
+ string code = 
+        "\\documentclass{article}\n" 
+    "\\usepackage{tikz}\n"
+    "\\usetikzlibrary{trees,shapes.geometric, positioning, calc}\n\n"
+    "\\begin{document}\n\n"
+    "\\tikzstyle{point} = [circle, inner sep=0pt, minimum size =1pt,  fill=black]\n"
+ "\\tikzstyle{process} = [rectangle, text centered, inner ysep=8pt,   path picture={ \\draw[black,fill=\\entryfill] (current bounding box.north) ++(0,-1pt)  circle (1pt) ++(0,-1pt) -- +(0,-2pt); \\draw [black,fill=\\exitfill] (current bounding box.south) ++(0,1pt) circle (1pt) ++(0,1pt) -- +(0,2pt); \\draw[black,fill=blue!20]  ($(current bounding box.south west) + (0,4pt)$)  rectangle  ($(current bounding box.north east) - (0,4pt)$);  }]\n\n"
+ "\\tikzstyle{io} = [rectangle, rounded corners, text centered, inner ysep=5pt,   path picture={ \\draw[black] (current bounding box.north) ++(0,-1pt)  circle (1pt) -- ++(0,-3pt); \\fill [black] (current bounding box.south) ++(0,1pt) circle (1pt); \\draw[black,fill=green!20]  ($(current bounding box.south west) + (0,2pt)$)  rectangle  ($(current bounding box.north east) - (0,4pt)$);  }]\n\n"
+"\\tikzstyle{decision} = [diamond, aspect=2,  text centered,  inner ysep=5pt, path picture={ \\draw[black,fill=\\entryfill] (current bounding box.north)  ++(0,-1pt) circle (1pt) ++(0,-1pt) -- +(0,-2pt); \\draw [black,fill=\\exitfill] ($(current bounding box.south) +(0,1pt)$) circle (1pt) ++(0,1pt)  -- +(0,2pt); \\draw[black ,fill=red!30]  (current bounding box.west)  -- ($(current bounding box.south) + (0,4pt)$) -- (current bounding box.east) -- ($(current bounding box.north) - (0,4pt)$) -- cycle;  }]\n\n"
+"\\tikzstyle{stop} = [circle,  text centered,  inner sep=4pt,  path picture={ \\draw[black] (current bounding box.north)  -- +(0,-3pt); \\draw[black,thick,fill=red ]  (current bounding box.center) let \\p1 = ($(current bounding box.north) - (current bounding box.center) - (0,3pt)$) in  circle ({veclen(\\x1,\\y1)});}]\n"
+"\\tikzstyle{start} = [rectangle, rounded corners,  text centered, draw=black, fill=green]\n\n"
+   "\\begin{tikzpicture}[node distance = 2cm]\n\n"
+   "\\def\\entryfill{white}\n"
+   "\\def\\exitfill{black}\n"
+
+   "\\tikzstyle{myarrow} = [->, blue, >=latex]\n\n"
+
+    "\\matrix[row sep =5mm,column sep=5mm]{\n"; 
+
+  for (int r=0; r<n_rows; r++) 
+    { 
+      nn = nodeMatrix.getElement(r,0);  
+      // cout << std::setw(5) << registrar.get(nn) <<";";
+      
+      if (nn>0) code.append(registrar.get(nn) +";");
+
+      for (int c=1; c<n_cols; c++) 
+	{
+	  nn = nodeMatrix.getElement(r,c);  
+	  //	  cout << " &" << std::setw(5) << registrar.get(nn)<<";";
+	  code.append(" &"); 
+          if (nn>0) code.append(registrar.get(nn) +";");
+	}
+      code.append( "\\\\\n" ); 
+    }
+
+  code.append("};\n\n"); 
+
+  for(Link l: links) code.append(l.toString()+"\n");
+
+
+  code.append("\n\n\\end{tikzpicture}\n\\end{document}\n\n");
+
+  return code;
+
+}
+
+
+int FCD::getEntryNode() const
+{  
+  return nodeMatrix.getElement(0,axis); 
+}
+
+
+FCD FCD::seqComp(const FCD & lower) const
+{ 
+    FCD result; 
+
+    result.links = links;
+    for(Link l:lower.links) result.links.push_back(l);  
+
+    if(axis == lower.axis) 
+      { result.nodeMatrix = nodeMatrix.joinBottom(lower.nodeMatrix);
+         result.axis = axis;  
+
+	 result.exits = lower.exits;
+
+ 	 for (pair<int,int> e: exits) 
+	   result.links.push_back(Link(e.first, ".south", lower.getEntryNode(), ".north",  "myarrow", (e.second==result.axis)?"--":"|-" ));
+      }
+    else if (axis > lower.axis) 
+      { int diff = axis-lower.axis;
+	 
+	result.nodeMatrix = nodeMatrix.joinBottom(lower.nodeMatrix.growLeft(diff));       
+	result.axis = axis;  
+
+	for (pair<int,int> e: lower.exits) // adjust column number for each exits
+	     result.exits.push_back(pair<int,int>(e.first,e.second+diff));
+
+ 	 for (pair<int,int> e: exits) 
+	   result.links.push_back(Link(e.first, ".south", lower.getEntryNode(), ".north", "myarrow", (e.second==diff+lower.axis)?"--":"|-" ));
+
+       }
+    else /* axis < lower.axis */
+      { int diff = lower.axis-axis;
+	
+	result.nodeMatrix = nodeMatrix.growLeft(diff).joinBottom(lower.nodeMatrix);
+	result.axis = lower.axis;  
+	
+	result.exits = lower.exits;
+
+ 	 for (pair<int,int> e: exits) 
+	   result.links.push_back(Link(e.first, ".south", lower.getEntryNode(), ".north", "myarrow", (diff+e.second==lower.axis)? "--" : "|-" ));
+
+      }
+
+    return result; 
+}
+
+FCD FCD::ifeComp(string cond, const FCD &right) const // this is the then branch FCD
+{ 
+  FCD result;
+  int xshift;
+
+  unsigned entry  = FCD::registrar.put("[decision]{"+cond+"}"); // create decision node
+  unsigned lentry = getEntryNode(); // entry node of the then branch
+  unsigned rentry = right.getEntryNode(); // entry node of the else branch
+
+  result.links = links; 
+  for (Link l:right.links) result.links.push_back(l);
+  
+  /*
+  if ( ( nodeMatrix.getWidth() == 1) && (right.nodeMatrix.getWidth() ==1) )
+    {  
+      result.nodeMatrix = nodeMatrix.growRight(1).joinRight(right.nodeMatrix).growTop(1);
+      xshift = nodeMatrix.getWidth() +1; 
+    }
+  else 
+    {
+      result.nodeMatrix = nodeMatrix.joinRight(right.nodeMatrix).growTop(1);
+      xshift = nodeMatrix.getWidth();
+    };
+  */
+  
+  result.nodeMatrix = nodeMatrix.joinRight(right.nodeMatrix).growTop(1);
+  xshift = nodeMatrix.getWidth();
+
+  result.axis = ( result.nodeMatrix.getWidth()-1 ) /2 ;  
+  if (axis > result.axis) result.axis = axis;
+
+  result.nodeMatrix.setElement(0,result.axis, entry); 
+
+  if (result.axis == axis) { // entry is above lentry
+    result.links.push_back(Link(entry, ".south",  lentry, ".north",  "myarrow", " -- node[sloped,above]{yes}"));
+    result.links.push_back(Link(entry, ".south", rentry, ".north", "myarrow", "-| node[sloped,above, near start]{no}"));
+  }
+  else if (result.axis == right.axis+xshift) { //entry is above rentry
+    result.links.push_back(Link(entry, ".south",  lentry, ".north",  "myarrow", " -| node[sloped,above, near start]{yes}"));
+    result.links.push_back(Link(entry, ".south", rentry, ".north", "myarrow", "-- node[sloped,above]{no}"));
+  }
+  else { // none of above two cases
+    result.links.push_back(Link(entry, ".south",  lentry, ".north",  "myarrow", " -| node[sloped,above, near start]{yes}"));
+    result.links.push_back(Link(entry, ".south", rentry, ".north", "myarrow", "-| node[sloped,above, near start]{no}"));
+  }
+  
+  result.exits = exits; 
+  for (pair<int,int> e: right.exits) // adjust column number for each exit in the else branch
+    result.exits.push_back(pair<int,int>(e.first,e.second+xshift));
+
+  return result;
+}
+ 
+
+FCD FCD::whileComp(string cond) const
+{
+  FCD result;
+
+  unsigned entry  = FCD::registrar.put("[decision]{"+cond+"}"); // create decision node
+  unsigned bentry = getEntryNode(); // entry node of the then branch
+  unsigned lpoint  = FCD::registrar.put("[point]{}"); // loop reentry
+  unsigned rpoint  = FCD::registrar.put("[point]{}"); // loop exit
+
+ 
+  result.links = links; 
+  
+  for (pair<int,int> e: exits) 
+    result.links.push_back(Link(e.first,lpoint, "myarrow", "|-")); 
+
+  result.links.push_back(Link(lpoint, "",  entry, ".north",  "myarrow", " |- "));
+
+  result.nodeMatrix = nodeMatrix.growLeft(1).growRight(1).growTop(1).growBottom(1);
+
+  result.axis = axis+1;
+  result.links.push_back(Link(entry, ".south",  bentry, ".north",  "myarrow",  " -- node[sloped,above]{yes} "));
+  result.links.push_back(Link(entry, ".south", rpoint, ".north",  "myarrow", " -| node[sloped,above, near start]{no} "));
+
+  result.nodeMatrix.setElement(0,result.axis, entry); 
+  result.nodeMatrix.setElement(result.nodeMatrix.getHeight()-1,0,lpoint); // TBD
+  result.nodeMatrix.setElement(1, result.nodeMatrix.getWidth()-1, rpoint); 
+
+  result.exits.push_back(pair<int,int>(rpoint,result.nodeMatrix.getWidth()-1)); // one exit point
+
+  return result;
+
+}

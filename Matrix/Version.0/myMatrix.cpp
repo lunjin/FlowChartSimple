@@ -1,0 +1,224 @@
+#include "myMatrix.h"
+#include <iostream>
+#include <iomanip>
+
+using namespace std; 
+
+myMatrix::myMatrix(int m, int n):
+  height(m), width(n)
+{ 
+  values = new int[m*n];
+  for(int i=0; i<m*n; i++) values[i]=0;
+}
+
+
+myMatrix::myMatrix():
+  height(1), width(1)
+{ 
+  values = new int[1];
+  values [0] = 0; 
+}
+
+
+myMatrix::~myMatrix()
+{
+  delete values; 
+}
+
+myMatrix::myMatrix(const myMatrix & m) :
+  height(m.height), width(m.width)
+{ values = new int[height*width]; 
+  std::copy(m.values, m.values+height*width, values);
+}
+
+
+myMatrix & myMatrix::operator=(const myMatrix & m) 
+{ 
+  height =m.height;
+  width = m.width;
+  delete values; 
+  values = new int[height*width]; 
+  std::copy(m.values, m.values+height*width, values);
+}
+
+int & myMatrix::operator()(int i, int j) 
+{
+  if ((i<0)||(i>=height) || (j<0) || (j>=width)) 
+    { cout << "Index out of bound" << endl; 
+    }
+  return values[i*width+j]; 
+}
+
+void myMatrix::print()
+{
+  for(int r =0; r<height; r++) 
+    {  for (int c=0; c<width; c++)
+	    cout << std::setw(5) << values[r*width +c]; 
+       cout << endl; 
+    }
+}
+
+myMatrix & myMatrix::joinToBottom( const myMatrix & other) 
+{ 
+  if(width == other.width)
+    { int * oldvalues = values;
+       values = new int[width*(height+other.height)]; 
+       std::copy(oldvalues, oldvalues+height*width,values); // copy rows from this  
+       std::copy(other.values, other.values+other.height*other.width, values+height*width);
+       delete oldvalues;
+       height += other.height; 
+    }
+  else if (width>other.width) 
+    {  //pad other with columns of zeros to the right
+      myMatrix pad(other.height,width-other.width);
+      myMatrix copy(other); 
+
+      joinToBottom(copy.joinToRight(pad));  
+    }
+ else 
+   {  //pad this with columns of zeros to the right
+      myMatrix pad(height,other.width-width);
+      joinToRight(pad).joinToBottom(other); 
+   }
+  return *this; 
+}
+
+
+myMatrix & myMatrix::joinToTop( const myMatrix & other) 
+{ 
+  if(width == other.width)
+    { int * oldvalues = values;
+       values = new int[width*(height+other.height)]; 
+       std::copy(other.values, other.values+other.height*other.width, values);
+       std::copy(oldvalues, oldvalues+height*width,values+other.height*other.width); // copy rows from this  
+       delete oldvalues;
+       height += other.height; 
+    }
+  else if (width>other.width) 
+    {  //pad other with columns of zeros to the right
+      myMatrix pad(other.height,width-other.width);
+      myMatrix copy(other); 
+
+      joinToTop(copy.joinToRight(pad));  
+    }
+ else 
+   {  //pad this with columns of zeros to the right
+      myMatrix pad(height,other.width-width);
+      joinToRight(pad).joinToTop(other); 
+   }
+  return *this; 
+}
+
+
+myMatrix & myMatrix::joinToRight( const myMatrix & other) 
+{
+  if(height == other.height)
+    {   
+      int *oldvalues = values;
+
+      int newwidth = width+other.width; 
+      values = new int[height*newwidth]; 
+         for (int r=0; r<height; r++)
+	   {  //cout<< "copying row " << r <<endl;
+              std::copy(oldvalues+r*width, 
+			oldvalues+(r+1)*width,
+			values+r*newwidth); 
+	     std::copy(other.values+r*other.width, 
+		       other.values+(r+1)*other.width, 
+		       values+r*newwidth+width);
+	   }
+       delete oldvalues;
+       width = newwidth; 
+    }
+  else if (height>other.height) 
+    { //pad other with rows of zeros to the bottom 
+      myMatrix pad(height-other.height,other.width); 
+
+      myMatrix copy(other); 
+
+      joinToRight(copy.joinToBottom(pad));   
+    }
+ else 
+   { //pad this with rows of zeros to the bottom 
+      myMatrix pad(other.height-height,width); 
+      joinToBottom(pad).joinToRight(other);   
+   }
+  return *this; 
+}
+
+
+myMatrix & myMatrix::joinToLeft( const myMatrix & other) 
+{
+  if(height == other.height)
+    {   
+      int *oldvalues = values;
+
+      int newwidth = width+other.width; 
+      values = new int[height*newwidth]; 
+         for (int r=0; r<height; r++)
+	   {  //cout<< "copying row " << r <<endl;
+       	      std::copy(other.values+r*other.width, 
+		       other.values+(r+1)*other.width, 
+		       values+r*newwidth);
+	      std::copy(oldvalues+r*width, 
+			oldvalues+(r+1)*width,
+			values+r*newwidth+other.width); 
+	   }
+       delete oldvalues;
+       width = newwidth; 
+    }
+  else if (height>other.height) 
+    { //pad other with rows of zeros to the bottom 
+      myMatrix pad(height-other.height,other.width); 
+
+      myMatrix copy(other); 
+
+      joinToLeft(copy.joinToBottom(pad));   
+    }
+ else 
+   { //pad this with rows of zeros to the bottom 
+      myMatrix pad(other.height-height,width); 
+      joinToBottom(pad).joinToLeft(other);   
+   }
+  return *this; 
+}
+
+
+int main() 
+{ myMatrix m(2,3), b(3,1);
+  m(0,0)=1; m(0,1)=2; m(0,2)=3;
+  m(1,0)=4; m(1,1)=5; m(1,2)=6;
+
+  b(0,0)=9; b(1,0)=8; b(2,0)=7; 
+
+  m.print();
+
+  cout << endl << endl;
+
+  b.print(); 
+
+
+  cout << endl << endl;
+
+  m.joinToTop(b);
+
+ cout << endl << endl;
+
+ m.print(); 
+
+ cout << endl << endl;
+
+ b.print(); 
+
+
+cout << endl << endl;
+
+ b.joinToLeft(m);
+
+ m.print(); 
+
+cout << endl << endl;
+
+ b.print(); 
+
+}

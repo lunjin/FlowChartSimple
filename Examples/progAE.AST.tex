@@ -1,0 +1,26 @@
+\documentclass{article}
+\usepackage{forest}
+\begin{document}
+
+\begin{forest}
+[{;}
+[{ife($x>y*2$)}
+[{;},edge label = {node[midway,green,left]{yes}}
+[{y:=x*2}
+]
+[{x:=y*2+1}
+]
+]
+[{ife($y>x*2$)},edge label = {node[midway,red,right]{no}}
+[{y:=x+1},edge label = {node[midway,green,left]{yes}}
+]
+[{x:=y*2+1},edge label = {node[midway,red,right]{no}}
+]
+]
+]
+[{z:=x*2+y*2}
+]
+]
+\end{forest}
+\end{document}
+

@@ -1,0 +1,16 @@
+\documentclass{article}
+\usepackage{forest}
+\begin{document}
+
+\begin{forest}
+[{while ($!(n=1)$)}
+[{ife($n\%2=0$)}
+[{n:=n/2},edge label = {node[midway,green,left]{yes}}
+]
+[{n:=3*n+1},edge label = {node[midway,red,right]{no}}
+]
+]
+]
+\end{forest}
+\end{document}
+

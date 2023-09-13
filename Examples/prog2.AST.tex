@@ -1,0 +1,26 @@
+\documentclass{article}
+\usepackage{forest}
+\begin{document}
+
+\begin{forest}
+[{;}
+[{;}
+[{;}
+[{x:=12}
+]
+[{y:=13}
+]
+]
+[read z
+]
+]
+[{ife($z>0$)}
+[print -x*y,edge label = {node[midway,green,left]{yes}}
+]
+[print x*y,edge label = {node[midway,red,right]{no}}
+]
+]
+]
+\end{forest}
+\end{document}
+

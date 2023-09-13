@@ -1,0 +1,30 @@
+\documentclass{article}
+\usepackage{forest}
+\begin{document}
+
+\begin{forest}
+[{;}
+[{;}
+[{;}
+[{;}
+[{x:=0}
+]
+[{x:=3}
+]
+]
+[{ife($z=x$)}
+[{z:=0},edge label = {node[midway,green,left]{yes}}
+]
+[{z:=x},edge label = {node[midway,red,right]{no}}
+]
+]
+]
+[{y:=x}
+]
+]
+[{x:=y+z}
+]
+]
+\end{forest}
+\end{document}
+

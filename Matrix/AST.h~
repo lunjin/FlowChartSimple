@@ -1,0 +1,39 @@
+#include <string>
+#include <list>
+#include <sstream>
+#include <iostream>
+#include <iomanip>
+
+#include "myMatrix.h"
+#include "Register.h"
+#include "Link.h"
+
+
+class AST 
+{
+ private: 
+    myMatrix nodeMatrix; 
+    int axis; //entry point is at  row 0 and column axis and exit is at bottom row and colun asix
+    std::list<Link> links; // links of the AST 
+    static Register registrar; // global data structure;
+
+
+
+  public: 
+   
+    AST(std::string Label); // create a simple node chart with a given label 
+    AST(); // create the empty chart 
+
+    std::string TikZCode() const;  // output code for drawing TikZ tree
+
+    AST seqComp(const AST &) const; // this is the AST for left statement
+
+    AST ifeComp(std::string cond,  const AST &right) const; //  this is AST for the then branch statement
+
+    AST whileComp(std::string cond) const;  // this is AST for the body statement
+
+    int getEntryNode() const;
+
+} ; 
+
+

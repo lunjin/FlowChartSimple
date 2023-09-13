@@ -1,0 +1,35 @@
+\documentclass{article}
+\usepackage{tikz}
+\usetikzlibrary{trees,shapes.geometric, positioning, arrows}
+
+\begin{document}
+
+\tikzstyle{state} = [circle, inner sep=2pt, radius =20pt, text centered, draw=black,  fill=blue!50]
+\tikzstyle{point} = [circle, inner sep=0pt, minimum size =1pt,fill]
+\tikzstyle{myarrow} = [->, >=latex]
+\begin{tikzpicture}[node distance = 2cm, >=latex]
+
+\matrix[row sep =5em,column sep=5em]{
+ &\node(vert1)[state]{s1}; &\\
+ &\node(vert9)[state]{s9}; &\\
+\node(vert8)[state]{s8}; &\node(vert6)[state]{s6}; &\\
+\node(vert7)[state]{s7}; &\node(vert5)[state]{s5}; &\node(vert4)[state]{s4};\\
+ &\node(vert3)[state]{s3}; &\\
+ &\node(vert2)[state]{s2}; &\\
+};
+
+\draw [myarrow]  (vert8)  --  node[sloped, near start,above]{y:=x*2} (vert7);
+\draw [myarrow]  (vert6)  -- node[sloped,above]{$y>x*2$} (vert5);
+\draw [myarrow]  (vert6)  -- node[sloped,above]{$ !(y>x*2)$} (vert4);
+\draw [myarrow]  (vert9)  -- node[sloped,above]{$x>y*2$} (vert8);
+\draw [myarrow]  (vert9)  -- node[sloped,above]{$ !(x>y*2)$} (vert6);
+\draw [myarrow]  (vert7)  |-  node[sloped, near start,above]{x:=y*2+1} (vert3);
+\draw [myarrow]  (vert5)  --  node[sloped, near start,above]{y:=x+1} (vert3);
+\draw [myarrow]  (vert4)  |-  node[sloped, near start,above]{x:=y*2+1} (vert3);
+\draw [myarrow]  (vert1)  --  node[sloped, near start,above]{} (vert9);
+\draw [myarrow]  (vert3)  --  node[sloped, near start,above]{z:=x*2+y*2} (vert2);
+
+
+\end{tikzpicture}
+\end{document}
+

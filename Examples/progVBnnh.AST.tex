@@ -1,0 +1,22 @@
+\documentclass{article}
+\usepackage{forest}
+\begin{document}
+
+\begin{forest}
+[{ife($a>b$)}
+[{;},edge label = {node[midway,green,left]{yes}}
+[{x:=b-a}
+]
+[{y:=a-b}
+]
+]
+[{;},edge label = {node[midway,red,right]{no}}
+[{y:=b-a}
+]
+[{x:=a-b}
+]
+]
+]
+\end{forest}
+\end{document}
+

@@ -1,0 +1,11 @@
+Positioning tail and head of an edge:
+
+# Simpliest solution is to always draw from the south of the source node to the north of the sink node for FCDs
+
+# A better? solution will position the tail of a {yes} edge at the west of the source node and a {no} at the east. 
+
+  1. Add to Link a source position and sink position
+
+      ".south", ".north", ".west", ".east" and "" where "" means that TikZ will figure out position
+
+  2. Link::toString() will add those positions when a link is generated. 

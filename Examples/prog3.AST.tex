@@ -1,0 +1,28 @@
+\documentclass{article}
+\usepackage{forest}
+\begin{document}
+
+\begin{forest}
+[{;}
+[{;}
+[{;}
+[{sum:=0}
+]
+[read z
+]
+]
+[{while ($z>0$)}
+[{;}
+[{sum:=sum+sin(z)}
+]
+[{z:=z-1}
+]
+]
+]
+]
+[print sum
+]
+]
+\end{forest}
+\end{document}
+

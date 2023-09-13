@@ -1,0 +1,16 @@
+class myMatrix
+{ 
+ private: 
+     int *values; 
+     int n_rows;
+     int n_cols;  
+
+ public:
+
+     myMatrix(int, int);
+     ~myMatrix();
+
+     int & operator[](int, int); 
+     void print(); 
+  
+} 

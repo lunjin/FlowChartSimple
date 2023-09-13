@@ -1,0 +1,20 @@
+#!/bin/sh
+
+rm prog* *~
+cp Programs/* .
+
+FILES=`ls prog*`
+
+
+for X in $FILES 
+do 
+    ./imp  $X;
+    sed -i 's/\%/\\\%/g'  $X.FCD.tex;
+    sed -i 's/\%/\\\%/g'  $X.CFA.tex;
+    sed -i 's/\%/\\\%/g'  $X.AST.tex; 
+
+    pdflatex $X.FCD.tex;
+    pdflatex $X.CFA.tex;
+    pdflatex $X.AST.tex;
+done
+

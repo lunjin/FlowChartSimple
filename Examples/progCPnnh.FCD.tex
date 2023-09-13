@@ -1,0 +1,47 @@
+\documentclass{article}
+\usepackage{tikz}
+\usetikzlibrary{trees,shapes.geometric, positioning, calc}
+
+\begin{document}
+
+\tikzstyle{point} = [circle, inner sep=0pt, minimum size =1pt,  fill=black]
+\tikzstyle{process} = [rectangle, text centered, inner ysep=8pt,   path picture={ \draw[black,fill=\entryfill] (current bounding box.north) ++(0,-1pt)  circle (1pt) ++(0,-1pt) -- +(0,-2pt); \draw [black,fill=\exitfill] (current bounding box.south) ++(0,1pt) circle (1pt) ++(0,1pt) -- +(0,2pt); \draw[black,fill=blue!20]  ($(current bounding box.south west) + (0,4pt)$)  rectangle  ($(current bounding box.north east) - (0,4pt)$);  }]
+
+\tikzstyle{io} = [rectangle, rounded corners, text centered, inner ysep=5pt,   path picture={ \draw[black] (current bounding box.north) ++(0,-1pt)  circle (1pt) -- ++(0,-3pt); \fill [black] (current bounding box.south) ++(0,1pt) circle (1pt); \draw[black,fill=green!20]  ($(current bounding box.south west) + (0,2pt)$)  rectangle  ($(current bounding box.north east) - (0,4pt)$);  }]
+
+\tikzstyle{decision} = [diamond, aspect=2,  text centered,  inner ysep=5pt, path picture={ \draw[black,fill=\entryfill] (current bounding box.north)  ++(0,-1pt) circle (1pt) ++(0,-1pt) -- +(0,-2pt); \draw [black,fill=\exitfill] ($(current bounding box.south) +(0,1pt)$) circle (1pt) ++(0,1pt)  -- +(0,2pt); \draw[black ,fill=red!30]  (current bounding box.west)  -- ($(current bounding box.south) + (0,4pt)$) -- (current bounding box.east) -- ($(current bounding box.north) - (0,4pt)$) -- cycle;  }]
+
+\tikzstyle{stop} = [circle,  text centered,  inner sep=4pt,  path picture={ \draw[black] (current bounding box.north)  -- +(0,-3pt); \draw[black,thick,fill=red ]  (current bounding box.center) let \p1 = ($(current bounding box.north) - (current bounding box.center) - (0,3pt)$) in  circle ({veclen(\x1,\y1)});}]
+\tikzstyle{start} = [rectangle, rounded corners,  text centered, draw=black, fill=green]
+
+\begin{tikzpicture}[node distance = 2cm]
+
+\def\entryfill{white}
+\def\exitfill{black}
+\tikzstyle{myarrow} = [->, blue, >=latex]
+
+\matrix[row sep =5mm,column sep=5mm]{
+ &\node(vert1)[start]{}; &\\
+ &\node(vert9)[process]{x:=6}; &\\
+ &\node(vert8)[process]{y:=3}; &\\
+ &\node(vert5)[decision]{$x>y$}; &\\
+ &\node(vert4)[process]{x:=x-1}; &\node(vert7)[point]{};\\
+ &\node(vert3)[process]{z:=y*y}; &\\
+\node(vert6)[point]{}; & &\\
+ &\node(vert2)[stop]{}; &\\
+};
+
+\draw [myarrow]  (vert9.south) -- (vert8.north);
+\draw [myarrow]  (vert4.south) -- (vert3.north);
+\draw [myarrow]  (vert3) |- (vert6);
+\draw [myarrow]  (vert6)  |-  (vert5.north);
+\draw [myarrow]  (vert5.south)  -- node[sloped,above]{yes}  (vert4.north);
+\draw [myarrow]  (vert5.south)  -| node[sloped,above, near start]{no}  (vert7.north);
+\draw [myarrow]  (vert8.south) -- (vert5.north);
+\draw [myarrow]  (vert1.south) -- (vert9.north);
+\draw [myarrow]  (vert7.south) |- (vert2.north);
+
+
+\end{tikzpicture}
+\end{document}
+
